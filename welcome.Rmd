@@ -5,8 +5,6 @@
 Google Mobility data was made available for COVID-19 research purposes, so it lacks dynamic controls.  
 This dashboard solves this issue by providing an intuitive and easy to understand solution: it displays Google Mobility data but allows easy plot personalisation.  
 
-The dashboard is available [here](https://shinyapps.io/ilcavaliereverde/ItalianMobility2020/)
-
 ### How it works
 
 This dasboard is built as a `R` `shiny` app. It downloads Google Mobility data, processes it for plotting. Plots are rendered according to user preferences. Data is refreshed every week.  
