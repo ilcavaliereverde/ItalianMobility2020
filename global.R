@@ -1,11 +1,13 @@
 #packages for the plots tab
-require(tidyverse)
-require(magrittr)
-require(shiny)
-require(stringr)
-require(scales)
-require(shinythemes)
-require(shinyWidgets)
+library(tidyverse)
+library(magrittr)
+library(shiny)
+library(stringr)
+library(scales)
+library(shinythemes)
+library(shinyWidgets)
+library(cowplot)
+library(data.table)
 
 #Function to read and assemble Google Mobility Report data by selected country. This function
 #will be used to update Google data weekly
