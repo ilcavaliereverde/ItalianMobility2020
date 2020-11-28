@@ -9,6 +9,7 @@ ui = navbarPage(
   
   #Plot tab
   tabPanel("Dashboard",
+           
            fluidRow(
              column(
                3,

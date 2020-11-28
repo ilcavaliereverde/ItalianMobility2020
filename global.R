@@ -59,11 +59,11 @@ readgoogle <- function(x, y) {
 }
 
 #Reading data from Google Mobility Reports
-path <- "https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv"
+# path <- "https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv"
 country <- "IT"
 
 #Only for local use
-# path <- "data/Global_Mobility_Report.csv"
+path <- "data/Global_Mobility_Report.csv"
 
 #Reading and manipulating data
 readgoogle(path, country)

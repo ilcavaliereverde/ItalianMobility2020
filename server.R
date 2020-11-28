@@ -1,4 +1,5 @@
 server = function(input, output, session) {
+  
   #Refreshing data every week (milliseconds * seconds * minutes * hours * days to form a week)
   observe({
     invalidateLater(1000 * 60 * 60 * 24 * 7, session)
@@ -6,6 +7,7 @@ server = function(input, output, session) {
     readGoogle(path, country)
     
   })
+
   
   #Observer that updates available provinces based on selected region
   observeEvent(input$reg,
