@@ -9,7 +9,7 @@ require(shinyWidgets)
 
 #Function to read and assemble Google Mobility Report data by selected country. This function
 #will be used to update Google data weekly
-readGoogle <- function(x, y) {
+readgoogle <- function(x, y) {
   #Assigning path to x
   x <- file.path(x)
   
@@ -64,7 +64,7 @@ country <- "IT"
 # path <- "data/Global_Mobility_Report.csv"
 
 #Reading and manipulating data
-readGoogle(path, country)
+readgoogle(path, country)
 
 ##The following code need not be inside the function to work: region, province, descriptions do not change if the function is updated by the shiny app
 
