@@ -9,8 +9,6 @@ library(shinyWidgets)
 library(cowplot)
 library(data.table)
 
-a
-
 #Function to read and assemble Google Mobility Report data by selected country. This function
 #will be used to update Google data weekly. x = zip to be downloaded, y = file to be read within the zip file
 readgoogle <- function(x, y) {
