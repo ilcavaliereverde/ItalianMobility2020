@@ -39,7 +39,7 @@ ui = navbarPage(
                selectizeInput("reg",
                               label = "Region:",
                               selected = "Abruzzo",
-                              reg),
+                              sort(unique(prre$region))),
                
                #Province selector
                selectInput("pro",

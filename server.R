@@ -3,9 +3,9 @@ server = function(input, output, session) {
   #Refreshing data every week (milliseconds * seconds * minutes * hours * days to form a week)
   observe({
     invalidateLater(1000 * 60 * 60 * 24 * 7, session)
-    
-    readGoogle(path, country)
-    
+
+    readgoogle(path, file)
+
   })
 
   
