@@ -5,9 +5,9 @@ account: ilcavaliereverde
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3267315
-bundleId: 3916155
+bundleId: 3918461
 url: https://ilcavaliereverde.shinyapps.io/ItalianMobility2020/
-when: 1606574573.60822
+when: 1606639583.32211
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: altro/prova.R|data/Global_Mobility_Report.csv
