@@ -10,16 +10,16 @@ library(cowplot)
 library(data.table)
 
 #Function to read and assemble Google Mobility Report data by selected country. This function
-#will be used to update Google data weekly
+#will be used to update Google data weekly. x = zip to be downloaded, y = file to be read within the zip file
 readgoogle <- function(x, y) {
-  #Assigning path to x
+  #Assigning path class to x
   x <- file.path(x)
-  
-  dfr <<-
-    #x can be the Google Mobility Reports url or a local csv file
-    data.table::fread(x, encoding = "UTF-8") %>%
-    #Filtering the dataset by selected country
-    filter(country_region_code == y) %>%
+  #Creating a temporary file 
+  temp <- tempfile()
+  #Downloading zip from the link
+  download.file(x, temp)
+  #Assigning dataframe
+  dfr <<- fread(unzip(temp, y), encoding = "UTF-8") %>%
     #Deleting useless columns
     select(-c("metro_area", "census_fips_code")) %>%
     #Renaming variables for understandability
@@ -56,25 +56,43 @@ readgoogle <- function(x, y) {
       province = ifelse(province == "", region, province),
       iso31662 = ifelse(iso31662 == "IT-SD", "IT-SU", iso31662),
     )
+  unlink(c(temp, file))
+  rm(temp)
 }
 
-#Reading data from Google Mobility Reports
-# path <- "https://www.gstatic.com/covid19/mobility/Global_Mobility_Report.csv"
-country <- "IT"
+#Reading data from Google Mobility Reports by geographical area
+path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
+file <- "2020_IT_Region_Mobility_Report.csv"
 
 #Only for local use
-path <- "data/Global_Mobility_Report.csv"
+# path <- "data/Global_Mobility_Report.csv"
 
 #Reading and manipulating data
-readgoogle(path, country)
+readgoogle(path, file)
+
+# #Separating variables into single dataframes
+# 
+# df6 <- as.data.frame(1)
+# for (i in 6:11) {
+#   "df"[[i]] <- dfr %>% select(c(1, 2, 3, 4, 5, i))
+# }
+# 
+# #Nesting dataframes to be chosen afterwards
+# a <- dfr %>%
+#   tibble %>%
+#   group_by(province) %>% #%>% group_keys()
+#   group_nest() 
+# 
+# b <- a %>%
+#   mutate(gplot = map2(data, ~ ggplot(data = .x, aes(x = date, y = parks))+
+#                        geom_point()))
+# 
+# b$gplot[[1]]
 
 ##The following code need not be inside the function to work: region, province, descriptions do not change if the function is updated by the shiny app
 
-#Subsetting alphabetically-ordered region and province labels for later
-prre = dfr %>% distinct(region, province) %>% distinct(province, .keep_all = T)
-# pro = sort(prre$province)
-prre <- prre %>% mutate(provonly = ifelse(province != region | region == "Aosta", province, NA))
-reg = sort(unique(prre$region))
+#Subsetting alphabetically-ordered region and province labels, for later
+prre <- dfr %>% distinct(region, province) %>% distinct(province, .keep_all = T) %>% mutate(provonly = ifelse(province != region | region == "Aosta", province, NA))
 
 #Creating a db to link plot variables, diplayed names and text to explain mobility variables to be shown in the summary
 #Plot variables
