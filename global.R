@@ -51,40 +51,38 @@ read_google <- function(x, y) {
       iso31662 = stringr::str_trim(iso31662),
       #Fixing empty cells (Italy and regions are missing)
       province = ifelse(province == "", region, province),
-      iso31662 = ifelse(iso31662 == "IT-SD", "IT-SU", iso31662)
+      iso31662 = ifelse(iso31662 == "IT-SD", "IT-SU", iso31662),
+      province = ifelse(province == "", "Italy", province)
     )
+  
+  #Subsetting alphabetically-ordered region and province labels. Relational DB that connects labels with
+  #province and region names. 
+  regpro <<- dfr %>%
+    distinct(region, province) %>%
+    distinct(province, .keep_all = T) %>%
+    mutate(
+      prolab = ifelse(province != region | region == "Aosta", province, NA),
+      reglab = ifelse(is.na(prolab), region, NA))
+  
+  #Cleaning spaces and other characters that ggplot cannot handle as names
+  regpro <<- regpro %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
+                              province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
+  
+  #Cleaning the database for the same purpose
+  dfr <<- dfr %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
+                         province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
+  #Removing temporary items
   unlink(c(temp, file))
   rm(temp)
 }
 
 #Reading data from Google Mobility Reports by geographical area
 # path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
+path <- "file://data/Region_Mobility_Report_CSVs.zip" #Only for local testing
 file <- "2020_IT_Region_Mobility_Report.csv"
-
-#Only for local use
-path <- "file://data/Region_Mobility_Report_CSVs.zip"
 
 #Reading and manipulating data
 read_google(path, file)
-
-#Subsetting alphabetically-ordered region and province labels. Relational DB tha connects
-#regions, provinces and their labels
-regpro <- dfr %>%
-  distinct(region, province) %>%
-  distinct(province, .keep_all = T) %>%
-  mutate(
-    prolab = ifelse(province != region | region == "Aosta", province, NA),
-    reglab = ifelse(is.na(prolab), region, NA)
-    )
-
-#Cleaning spaces and other characters that ggplot cannot handle as names
-regpro <- regpro %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
-                            province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
-
-#Cleaning the database for the same purpose
-dfr <- dfr %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
-                      province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")),
-                      province = ifelse(province == "", "Italy", province))
 
 #Creating a db to link plot variables, displayed names and text to explain mobility variables to be shown in the summary
 #Plot variables

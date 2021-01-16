@@ -9,11 +9,8 @@ ui = navbarPage(
   
   #Plot tab
   tabPanel("Dashboard",
-           
-           fluidRow(
-             column(
-               3,
-               
+           sidebarLayout(
+             sidebarPanel(
                #Date range selector
                dateRangeInput(
                  "dateRange",
@@ -36,16 +33,20 @@ ui = navbarPage(
                
                
                #Region selector
-               selectizeInput("reg",
-                              label = "Region:",
-                              selected = "Abruzzo",
-                              sort(regpro$reglab)),
+               selectizeInput(
+                 "reg",
+                 label = "Region:",
+                 selected = "Abruzzo",
+                 sort(regpro$reglab)
+               ),
                
                #Province selector
-               selectInput("pro",
-                           label = "Province:",
-                           selected = "Chieti",
-                           choices = NULL),
+               selectInput(
+                 "pro",
+                 label = "Province:",
+                 selected = "Chieti",
+                 choices = NULL
+               ),
                
                br(),
                
@@ -57,29 +58,30 @@ ui = navbarPage(
                  status = "primary"
                ),
                
-               #National average selector
                materialSwitch(
-                 inputId = "nat",
+                 inputId = "ita",
                  label = "National average",
                  right = TRUE,
-                 status = "primary"
-               )
-             ),
+                 status = "success"
+               ),
+               
+               
+               hr(),
+               
+               p(plotdescr),
+               
+               hr(),
+               
+               uiOutput("summ")
+             )
+             
+             ,
              
              #Plot panel with summary
-             column(9,
-                    plotOutput("plot"),
-                    
-                    br()),
-             
-             
-             
-             column(7, offset = 3,
-                    p(plotdescr),
-                    
-                    uiOutput("summ"))
-             
-             
-             
-           ))
+             mainPanel(plotOutput("plot"))
+           )),
+  
+  #Contacts page tab
+  tabPanel("Contacts",
+           includeMarkdown("contacts.Rmd"))
 )

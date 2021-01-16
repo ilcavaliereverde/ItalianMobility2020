@@ -44,17 +44,25 @@ server = function(input, output, session) {
   
   #Region selection from the region-province relational database
   r = reactive({
-    regpro %>% filter(reglab == input$reg) %>% select(region) %>% as.character()
+    regpro %>%
+      filter(reglab == input$reg) %>%
+      select(region) %>%
+      unlist() %>%
+      as.character()
   })
   
   #Province selection from the region-province relational database
   p = reactive({
-    regpro %>% filter(prolab == input$pro) %>% select(province) %>% as.character()
-  })
+    regpro %>%
+      filter(prolab == input$pro) %>%
+      select(province) %>%
+      unlist() %>%
+      as.character()
+    })
   
   #Creates a temporary database from selected inputs
   df1 = reactive({
-    dfr %>%
+    dfr %>% 
       select(province, date, v()) %>%
       filter(province == p() | province == r() | province == "Italy") %>%
       pivot_wider(names_from = province, values_from = v())
@@ -64,28 +72,28 @@ server = function(input, output, session) {
   output$plot = renderPlot({
     ggplot(df1(), aes_string(x = "date")) +
       
-      # Region, rolling mean 7 days, only if selected
+      # Regional rolling 7 days mean, only if selected
       {
         if (input$chk == T)
           geom_line(
             aes(y = zoo::rollmean(
               get(r()), 7, na.pad = TRUE, align = "right"
             )),
-            size = 1,
-            colour = "#78B7C5",
-            alpha = 0.75
-          )} +
+            colour = "#3B9AB2",
+            alpha = 0.9
+          )
+      } +
       
-   {
-     if (input$nat == T)
-        geom_line(
-          aes(y = zoo::rollmean(
-            "Italy", 7, na.pad = TRUE, align = "right"
-          )),
-          size = 1,
-          fill = "#78B7C5",
-          alpha = 0.2
-        )
+      #National rolling 7 days mean, only if selected
+      {
+        if (input$ita == T)
+          geom_line(
+            aes(y = zoo::rollmean(
+              Italy, 7, na.pad = TRUE, align = "right"
+            )),
+            colour = "#02401B",
+            alpha = 0.9
+          )
       } +
       
       #Province, daily change from baseline
@@ -97,7 +105,6 @@ server = function(input, output, session) {
         aes(y = zoo::rollmean(
           get(p()), 7, na.pad = TRUE, align = "right"
         )),
-        size = 1,
         colour = "#F21A00",
         alpha = 0.9
       ) +
@@ -105,17 +112,16 @@ server = function(input, output, session) {
         aes(y = zoo::rollmean(
           get(p()), 7, na.pad = TRUE, align = "right"
         )),
-        size = 1,
         fill = "#F21A00",
         alpha = 0.1
       ) +
       
       #Plot labels
       labs(
-        title = nam %>% filter(var == v()) %>% select(namlab) %>% as.character(),
-        subtitle = "Italy 2020",
+        title = "Italian mobility changes",
+        subtitle = paste0(nam %>% filter(var == v()) %>% select(namlab) %>% as.character(), " 2020-2021"),
         x = NULL,
-        y = "% mobility change",
+        y = NULL,
         caption = "Source: egiovannini.shinyapps.io/ItalianMobility2020/"
       ) +
       
@@ -128,11 +134,11 @@ server = function(input, output, session) {
       ) +
       
       #General theme
-      cowplot::theme_minimal_grid() +
+      cowplot::theme_minimal_grid(font_size = 18) +
       
       #Angle on x axis
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  })
+  }, height = 600)
   
   output$summ = renderText({
     HTML(nam %>% filter(var == v()) %>% select(text) %>% as.character())
