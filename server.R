@@ -1,13 +1,12 @@
 server = function(input, output, session) {
-  
   #Refreshing data every week (milliseconds * seconds * minutes * hours * days to form a week)
   observe({
     invalidateLater(1000 * 60 * 60 * 24 * 7, session)
-
-    readgoogle(path, file)
-
+    
+    read_google(path, file)
+    
   })
-
+  
   
   #Observer that updates available provinces based on selected region
   observeEvent(input$reg,
@@ -15,7 +14,17 @@ server = function(input, output, session) {
                  updateSelectInput(
                    session,
                    "pro",
-                   choices = prre %>% filter(region == input$reg) %>% select(provonly) %>% drop_na() %>% unlist() %>% as.character()
+                   choices = regpro %>%
+                     filter(region == regpro %>%
+                              filter(reglab == input$reg) %>%
+                              select(region) %>%
+                              unlist() %>%
+                              as.character()) %>%
+                     select(prolab) %>%
+                     drop_na() %>%
+                     unlist() %>%
+                     sort() %>%
+                     as.character()
                  )
                  
                })
@@ -26,38 +35,35 @@ server = function(input, output, session) {
     input$dateRange
   })
   
-  #Variable selection
+  #Variable selection from the variable relational database
   v = reactive({
-    nam %>% filter(name == input$vis) %>% select(var) %>% as.character()
+    nam %>% filter(namlab == input$vis) %>% select(var) %>% as.character()
   })
   
-  #Region selection
+  #Region selection from the region-province relational database
   r = reactive({
-    str_replace_all(input$reg, c(" " = "" , "'" = "",  "-" = ""))
+    regpro %>% filter(reglab == input$reg) %>% select(region) %>% as.character()
   })
   
-  #Province selection
+  #Province selection from the region-province relational database
   p = reactive({
-    str_replace_all(input$pro, c(" " = "" , "'" = "",  "-" = ""))
+    regpro %>% filter(prolab == input$pro) %>% select(province) %>% as.character()
   })
   
-  #Observer of province choice for dataframe tidying
-  df1 = reactive(
+  #Creates a temporary database from selected inputs
+  df1 = reactive({
     dfr %>%
-      select(c(4, 6, v())) %>%
-      mutate(province = str_replace_all(province, c(
-        " " = "" , "'" = "", "-" = ""
-      ))) %>%
+      select(province, date, v()) %>%
       filter(province == p() | province == r()) %>%
       pivot_wider(names_from = province, values_from = v())
-  )
+  })
   
   #Plot output
   output$plot = renderPlot({
     ggplot(df1(), aes_string(x = "date")) +
       #Baseline
-      # geom_line(aes(y = 0)) +
-      #Region, rolling mean 7 days, only if selected
+      geom_line(aes(y = 0)) +
+      # Region, rolling mean 7 days, only if selected
       {
         if (input$chk == T)
           geom_line(
@@ -69,7 +75,7 @@ server = function(input, output, session) {
             alpha = 0.75
           )
       } +
-      #Province, change from baseline
+      #Province, daily change from baseline
       geom_line(aes_string(y = p()), alpha = 0.2, colour = "#899DA4") +
       #Province, rolling mean 7 days
       geom_line(
@@ -80,28 +86,28 @@ server = function(input, output, session) {
         colour = "#F21A00",
         alpha = 0.9
       ) +
-      #Plot labels
-      labs(
-        title = nam %>% filter(var == v()) %>% select(name) %>% as.character(),
-        subtitle = "Italy 2020",
-        x = NULL,
-        y = "% mobility change",
-        caption = "Source: shinyapps.io/ilcavaliereverde/ItalianMobility2020/"
-      ) +
-      #Y axis mods
-      scale_y_continuous(labels = scales::percent_format(accuracy = 1, scale = 100)) +
-      scale_x_date(
-        date_breaks = "1 month",
-        limits = d(),
-        labels = date_format("%b %y")
-      ) +
-      #General theme
-      cowplot::theme_minimal_grid() +
-      #Theme mod, angled x
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    #Plot labels
+    labs(
+      title = nam %>% filter(var == v()) %>% select(namlab) %>% as.character(),
+      subtitle = "Italy 2020",
+      x = NULL,
+      y = "% mobility change",
+      caption = "Source: egiovannini.shinyapps.io/ItalianMobility2020/"
+    ) +
+    #Y axis mods
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1, scale = 100)) +
+    scale_x_date(
+      date_breaks = "1 month",
+      limits = d(),
+      labels = date_format("%b %y")
+    ) +
+    #General theme
+    cowplot::theme_minimal_grid() +
+    #Theme mod, angled x
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
   })
-  
-  output$summ = renderText({
-    HTML(nam %>% filter(var == v()) %>% select(text) %>% as.character())
-  })
+
+output$summ = renderText({
+  HTML(nam %>% filter(var == v()) %>% select(text) %>% as.character())
+})
 }

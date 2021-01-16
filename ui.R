@@ -32,18 +32,19 @@ ui = navbarPage(
                #Variable selector
                selectInput("vis",
                            label = "Visits to:",
-                           nam$name),
+                           nam$namlab),
                
                
                #Region selector
                selectizeInput("reg",
                               label = "Region:",
                               selected = "Abruzzo",
-                              sort(unique(prre$region))),
+                              sort(regpro$reglab)),
                
                #Province selector
                selectInput("pro",
                            label = "Province:",
+                           selected = "Chieti",
                            choices = NULL),
                
                br(),
