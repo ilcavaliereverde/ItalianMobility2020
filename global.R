@@ -83,7 +83,8 @@ regpro <- regpro %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = 
 
 #Cleaning the database for the same purpose
 dfr <- dfr %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
-                      province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
+                      province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")),
+                      province = ifelse(province == "", "Italy", province))
 
 #Creating a db to link plot variables, displayed names and text to explain mobility variables to be shown in the summary
 #Plot variables

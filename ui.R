@@ -55,6 +55,14 @@ ui = navbarPage(
                  label = "Regional average",
                  right = TRUE,
                  status = "primary"
+               ),
+               
+               #National average selector
+               materialSwitch(
+                 inputId = "nat",
+                 label = "National average",
+                 right = TRUE,
+                 status = "primary"
                )
              ),
              
