@@ -1,0 +1,13 @@
+name: ItalianMobility
+title: ItalianMobility
+username:
+account: egiovannini
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3480531
+bundleId: 4105754
+url: https://egiovannini.shinyapps.io/ItalianMobility/
+when: 1610836072.72137
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|pro.svg|altro/prova.R|altro/data/Global_Mobility_Report.csv|data/Global_Mobility_Report.csv|data/istatprov.csv|data/limits_IT_provinces.geojson|data/Region_Mobility_Report_CSVs.zip|data/sportelliper100000.csv|plots
