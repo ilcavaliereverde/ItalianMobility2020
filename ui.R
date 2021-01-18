@@ -72,7 +72,7 @@ ui = navbarPage(
                
                hr(),
                
-               uiOutput("summ")
+               uiOutput("summ1")
              )
              
              ,

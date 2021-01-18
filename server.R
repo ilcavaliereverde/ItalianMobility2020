@@ -58,13 +58,14 @@ server = function(input, output, session) {
       select(province) %>%
       unlist() %>%
       as.character()
-    })
+  })
   
   #Creates a temporary database from selected inputs
   df1 = reactive({
-    dfr %>% 
+    dfr %>%
       select(province, date, v()) %>%
-      filter(province == p() | province == r() | province == "Italy") %>%
+      filter(province == p() |
+               province == r() | province == "Italy") %>%
       pivot_wider(names_from = province, values_from = v())
   })
   
@@ -111,16 +112,19 @@ server = function(input, output, session) {
         alpha = 0.9,
         size = 0.75
       ) +
-      geom_area(
-        aes(y = zoo::rollmean(get(p()), 7, na.pad = TRUE, align = "right")),
-        fill = "#F21A00",
-        alpha = 0.1
-      ) +
+      geom_area(aes(y = zoo::rollmean(
+        get(p()), 7, na.pad = TRUE, align = "right"
+      )),
+      fill = "#F21A00",
+      alpha = 0.1) +
       
       #Plot labels
       labs(
         title = "Italian mobility changes",
-        subtitle = paste0(nam %>% filter(var == v()) %>% select(namlab) %>% as.character(), " 2020-2021"),
+        subtitle = paste0(
+          nam %>% filter(var == v()) %>% select(namlab) %>% as.character(),
+          " 2020-2021"
+        ),
         x = NULL,
         y = NULL,
         caption = "Source: egiovannini.shinyapps.io/ItalianMobility/"
@@ -141,7 +145,11 @@ server = function(input, output, session) {
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   }, height = 600)
   
-  output$summ = renderText({
-    HTML(nam %>% filter(var == v()) %>% select(text) %>% as.character())
+  output$summ1 = renderText({
+    HTML(paste0("<code>",
+                nam %>% filter(var == v()) %>% select(namlab) %>% as.character(),
+                "</code>"),
+         nam %>% filter(var == v()) %>% select(text) %>% as.character())
   })
+  
 }

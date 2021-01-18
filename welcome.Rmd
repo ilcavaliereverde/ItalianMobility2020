@@ -35,12 +35,6 @@ Only a few of several notes:
 * data has gaps; 
 * variables are not fully comparable.  
 
-### Contacts
-
-[Email](egiovannini@outlook.com)  
-
-[Linkedin](https://www.linkedin.com/in/egiovannini/)  
-
 <br>
 
 &copy; Edoardo Giovannini 2020-2021

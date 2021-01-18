@@ -77,8 +77,8 @@ read_google <- function(x, y) {
 }
 
 #Reading data from Google Mobility Reports by geographical area
-path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
-# path <- "file://data/Region_Mobility_Report_CSVs.zip" #Only for local testing
+# path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
+path <- "file://data/Region_Mobility_Report_CSVs.zip" #Only for local testing
 file <- "2020_IT_Region_Mobility_Report.csv"
 
 #Reading and manipulating data
@@ -95,15 +95,15 @@ nam[4, 2] = "Retail and recreation"
 nam[5, 2] = "Transit stations"
 nam[6, 2] = "Workplaces"
 #Summaries for UI
-nam[1, 3] = "Groceries & pharmacies shows mobility trends for places like grocery markets, food warehouses, farmers markets, specialty food shops, drug stores, and pharmacies."
-nam[2, 3] = "Parks shows mobility trends for places like national parks, public beaches, marinas, dog parks, plazas, and public gardens."
-nam[3, 3] = "Residential shows mobility trends for places of residence."
-nam[4, 3] = "Retail & recreation shows mobility trends for places like restaurants, cafes, shopping centers, theme parks, museums, libraries, and movie theaters."
-nam[5, 3] = "Transit stations shows mobility trends for places like public transport hubs such as subway, bus, and train stations."
-nam[6, 3] = "Workplaces shows mobility trends for places of work."
+nam[1, 3] = " shows mobility trends for places like grocery markets, food warehouses, farmers markets, specialty food shops, drug stores, and pharmacies."
+nam[2, 3] = " shows mobility trends for places like national parks, public beaches, marinas, dog parks, plazas, and public gardens."
+nam[3, 3] = " shows mobility trends for places of residence."
+nam[4, 3] = " shows mobility trends for places like restaurants, cafes, shopping centers, theme parks, museums, libraries, and movie theaters."
+nam[5, 3] = " shows mobility trends for places like public transport hubs such as subway, bus, and train stations."
+nam[6, 3] = " shows mobility trends for places of work."
 #Colnames to call in app
 colnames(nam) = c("var", "namlab", "text")
 
 #Plot description text that will be concatenated to text summaries above
-plotdescr = "This plot displays daily variations from baseline in grey and a 7-day rolling average in red. You can check the box on the left to add the regional 7-day rolling average. Data is updated to the latest available week."
+plotdescr = "This plot displays daily variations from baseline in grey and a 7-day rolling average in red. Dots on the left add 7 day regional or national rolling averages. Data is updated to the latest available week."
 
