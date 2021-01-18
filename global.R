@@ -77,8 +77,8 @@ read_google <- function(x, y) {
 }
 
 #Reading data from Google Mobility Reports by geographical area
-# path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
-path <- "file://data/Region_Mobility_Report_CSVs.zip" #Only for local testing
+path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
+# path <- "file://data/Region_Mobility_Report_CSVs.zip" #Only for local testing
 file <- "2020_IT_Region_Mobility_Report.csv"
 
 #Reading and manipulating data
