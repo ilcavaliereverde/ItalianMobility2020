@@ -79,9 +79,5 @@ ui = navbarPage(
              
              #Plot panel with summary
              mainPanel(plotOutput("plot"))
-           )),
-  
-  #Contacts page tab
-  tabPanel("Contacts",
-           includeMarkdown("contacts.Rmd"))
+           ))
 )

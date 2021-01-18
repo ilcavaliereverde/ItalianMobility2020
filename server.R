@@ -80,7 +80,8 @@ server = function(input, output, session) {
               get(r()), 7, na.pad = TRUE, align = "right"
             )),
             colour = "#3B9AB2",
-            alpha = 0.9
+            alpha = 0.9,
+            size = 0.75
           )
       } +
       
@@ -92,7 +93,8 @@ server = function(input, output, session) {
               Italy, 7, na.pad = TRUE, align = "right"
             )),
             colour = "#02401B",
-            alpha = 0.9
+            alpha = 0.9,
+            size = 0.75
           )
       } +
       
@@ -106,12 +108,11 @@ server = function(input, output, session) {
           get(p()), 7, na.pad = TRUE, align = "right"
         )),
         colour = "#F21A00",
-        alpha = 0.9
+        alpha = 0.9,
+        size = 0.75
       ) +
       geom_area(
-        aes(y = zoo::rollmean(
-          get(p()), 7, na.pad = TRUE, align = "right"
-        )),
+        aes(y = zoo::rollmean(get(p()), 7, na.pad = TRUE, align = "right")),
         fill = "#F21A00",
         alpha = 0.1
       ) +
@@ -122,7 +123,7 @@ server = function(input, output, session) {
         subtitle = paste0(nam %>% filter(var == v()) %>% select(namlab) %>% as.character(), " 2020-2021"),
         x = NULL,
         y = NULL,
-        caption = "Source: egiovannini.shinyapps.io/ItalianMobility2020/"
+        caption = "Source: egiovannini.shinyapps.io/ItalianMobility/"
       ) +
       
       #Y axis labels
