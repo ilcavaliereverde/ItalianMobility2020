@@ -5,9 +5,10 @@ account: egiovannini
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3480531
-bundleId: 4114073
+bundleId: 4777673
 url: https://egiovannini.shinyapps.io/ItalianMobility/
-when: 1611007213.88668
+when: 1625155279.94495
+lastSyncTime: 1625155279.94495
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|pro.svg|README.md|altro/prova.R|altro/data/Global_Mobility_Report.csv|data/istatprov.csv|data/limits_IT_provinces.geojson|data/Region_Mobility_Report_CSVs.zip|data/sportelliper100000.csv|plots
+ignoredFiles: .RData|data/istatprov.csv|data/limits_IT_provinces.geojson|data/new file.zip|data/Region_Mobility_Report_CSVs.zip|data/sportelliper100000.csv|pro.svg
