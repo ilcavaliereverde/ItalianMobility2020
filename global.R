@@ -1,4 +1,4 @@
-# Packages to be loaded
+# Packages to be loaded.
 library(tidyverse)
 library(magrittr)
 library(shiny)
@@ -15,22 +15,28 @@ library(data.table)
 # y = file to be read within the zip file.
 read_google <- function(x, y) {
   
-  # Assigning path class to x
+  # Assigning path class to x.
   x <- file.path(x)
   
-  # Creating a temporary file 
+  # Count how many files are in the y vector.
+  length(y)
+  
+  # Creating a temporary file for every.
   temp <- tempfile()
   
-  # Downloading zip from the link
+  # Downloading zip from the link.
   download.file(x, temp)
   
-  # Assigning dataframe
-  dfr <<- fread(unzip(temp, y), encoding = "UTF-8") %>%
+  # Unzipping files.
+  fls <- unzip(temp, y)
+  
+  # Assigning dataframe.
+  dfr <<- rbindlist(lapply(fls, fread, encoding = "UTF-8")) %>%
     
-    # Deleting useless columns
+    # Deleting useless columns.
     select(-c("country_region_code", "country_region", "metro_area", "census_fips_code")) %>%
     
-    # Renaming variables for understandability
+    # Renaming variables for understandability.
     rename(
       iso31662 = iso_3166_2_code,
       region = sub_region_1,
@@ -43,7 +49,7 @@ read_google <- function(x, y) {
       residential = residential_percent_change_from_baseline
     ) %>%
     
-    # Indexes to percent values
+    # Indexes to percent values.
     mutate(
       "retail_recreation" = retail_recreation / 100,
       "grocery_pharmacy" = grocery_pharmacy / 100,
@@ -51,14 +57,14 @@ read_google <- function(x, y) {
       "transit_stations" = transit_stations / 100,
       "workplace" = workplace / 100,
       "residential" = residential / 100,
-      # Trimming province names
+      # Trimming province names.
       province = str_replace(province, "Metropolitan City of ", ""),
       province = str_replace(province, "Province of ", ""),
       province = str_replace(province, "Free municipal consortium of ", ""),
       province = stringr::str_trim(province),
       region = stringr::str_trim(region),
       iso31662 = stringr::str_trim(iso31662),
-      # Fixing empty cells (Italy and regions are missing)
+      # Fixing empty cells (Italy and regions are missing).
       province = ifelse(province == "", region, province),
       iso31662 = ifelse(iso31662 == "IT-SD", "IT-SU", iso31662),
       province = ifelse(province == "", "Italy", province)
@@ -73,25 +79,32 @@ read_google <- function(x, y) {
       prolab = ifelse(province != region | region == "Aosta", province, NA),
       reglab = ifelse(is.na(prolab), region, NA))
   
-  # Cleaning spaces and other characters that ggplot cannot handle as names
+  # Cleaning spaces and other characters that ggplot cannot handle as names.
   regpro <<- regpro %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
                               province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
   
-  # Cleaning the database for the same purpose
+  # Cleaning the database for the same purpose.
   dfr <<- dfr %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
                          province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
-  # Removing temporary items
+  # Removing temporary items.
   unlink(c(temp, file))
   rm(temp)
 }
 
 # Reading data from Google Mobility Reports by geographical area.
 path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
-# path <- "file://data/Region_Mobility_Report_CSVs.zip" #Only for local testing.
-file <- "2020_IT_Region_Mobility_Report.csv"
+# Only for local testing:
+# path <- "file://new file.zip" 
 
-# Reading and manipulating data.
-read_google(path, file)
+# Vector of pertinent csv files.
+files <- c("2020_IT_Region_Mobility_Report.csv",
+           "2021_IT_Region_Mobility_Report.csv")
+
+# Reading and manipulating Google Mobility Data in one large dataframe according
+# on 2 inputs (url and vector of csv files).
+read_google(path, files)
+
+colz <- colnames(dfr) %>% tibble()
 
 # Creating a db to link plot variables, displayed names and text to 
 # explain mobility variables to be shown in the summary.
