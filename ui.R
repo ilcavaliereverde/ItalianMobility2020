@@ -11,6 +11,7 @@ ui = navbarPage(
   tabPanel("Dashboard",
            sidebarLayout(
              sidebarPanel(
+               
                # Date range selector.
                dateRangeInput(
                  "dateRange",

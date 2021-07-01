@@ -5,7 +5,7 @@ server = function(input, output, session) {
   observe({
     invalidateLater(1000 * 60 * 60 * 24 * 7, session)
     
-    read_google(path, file)
+    read_google(path, files)
     
   })
   

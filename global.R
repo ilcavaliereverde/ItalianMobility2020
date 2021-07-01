@@ -31,7 +31,9 @@ read_google <- function(x, y) {
   fls <- unzip(temp, y)
   
   # Assigning dataframe.
-  dfr <<- rbindlist(lapply(fls, fread, encoding = "UTF-8")) %>%
+  dfr <<- rbindlist(lapply(fls,
+                           fread,
+                           encoding = "UTF-8")) %>%
     
     # Deleting useless columns.
     select(-c("country_region_code", "country_region", "metro_area", "census_fips_code")) %>%
@@ -75,26 +77,27 @@ read_google <- function(x, y) {
   regpro <<- dfr %>%
     distinct(region, province) %>%
     distinct(province, .keep_all = T) %>%
-    mutate(
-      prolab = ifelse(province != region | region == "Aosta", province, NA),
-      reglab = ifelse(is.na(prolab), region, NA))
+    mutate(prolab = ifelse(province != region | region == "Aosta", province, NA),
+           reglab = ifelse(is.na(prolab), region, NA))
   
   # Cleaning spaces and other characters that ggplot cannot handle as names.
-  regpro <<- regpro %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
-                              province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
+  regpro <<- regpro %>%
+    mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
+           province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
   
   # Cleaning the database for the same purpose.
-  dfr <<- dfr %>% mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
+  dfr <<- dfr %>%
+    mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
                          province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
   # Removing temporary items.
-  unlink(c(temp, file))
+  unlink(c(temp, files))
   rm(temp)
 }
 
 # Reading data from Google Mobility Reports by geographical area.
 path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
 # Only for local testing:
-# path <- "file://new file.zip" 
+# path <- "file://data/new file.zip"
 
 # Vector of pertinent csv files.
 files <- c("2020_IT_Region_Mobility_Report.csv",
@@ -104,13 +107,13 @@ files <- c("2020_IT_Region_Mobility_Report.csv",
 # on 2 inputs (url and vector of csv files).
 read_google(path, files)
 
-colz <- colnames(dfr) %>% tibble()
-
 # Creating a db to link plot variables, displayed names and text to 
 # explain mobility variables to be shown in the summary.
 
 # Plot variables
-nam = colnames(dfr[, 5:10]) %>% sort () %>% tibble() 
+nam = colnames(dfr[, 6:11]) %>%
+  sort() %>%
+  tibble() 
 
 # Labels to be displayed in UI
 nam[1, 2] = "Groceries and pharmacies"
@@ -129,7 +132,9 @@ nam[5, 3] = " shows mobility trends for places like public transport hubs such a
 nam[6, 3] = " shows mobility trends for places of work."
 
 # Colnames to call in app
-colnames(nam) = c("var", "namlab", "text")
+colnames(nam) = c("var",
+                  "namlab",
+                  "text")
 
 # Plot description text that will be concatenated to text summaries above
 plotdescr = "This plot displays daily variations from baseline in grey and a 7-day rolling average in red. Dots on the left add 7 day regional or national rolling averages. Data is updated to the latest available week."
