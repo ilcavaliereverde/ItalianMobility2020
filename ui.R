@@ -3,15 +3,15 @@ ui = navbarPage(
   id = "Welcome",
   theme = shinytheme("yeti"),
   
-  #Welcome page tab
+  # Welcome page tab.
   tabPanel("Introduction",
            includeMarkdown("welcome.Rmd")),
   
-  #Plot tab
+  # Plot tab.
   tabPanel("Dashboard",
            sidebarLayout(
              sidebarPanel(
-               #Date range selector
+               # Date range selector.
                dateRangeInput(
                  "dateRange",
                  label = paste("From - To:"),
@@ -26,13 +26,13 @@ ui = navbarPage(
                  weekstart = 1
                ),
                
-               #Variable selector
+               # Variable selector.
                selectInput("vis",
                            label = "Visits to:",
                            nam$namlab),
                
                
-               #Region selector
+               # Region selector.
                selectizeInput(
                  "reg",
                  label = "Region:",
@@ -40,7 +40,7 @@ ui = navbarPage(
                  sort(regpro$reglab)
                ),
                
-               #Province selector
+               # Province selector.
                selectInput(
                  "pro",
                  label = "Province:",
@@ -50,7 +50,7 @@ ui = navbarPage(
                
                br(),
                
-               #Region average selector
+               # Region average switch.
                materialSwitch(
                  inputId = "chk",
                  label = "Regional average",
@@ -58,6 +58,7 @@ ui = navbarPage(
                  status = "primary"
                ),
                
+               # National average switch.
                materialSwitch(
                  inputId = "ita",
                  label = "National average",
@@ -68,16 +69,18 @@ ui = navbarPage(
                
                hr(),
                
+               # Plot description.
                p(plotdescr),
                
                hr(),
                
+               # Variable description.
                uiOutput("summ1")
              )
              
              ,
              
-             #Plot panel with summary
+             # Plot panel with summary.
              mainPanel(plotOutput("plot"))
            ))
 )

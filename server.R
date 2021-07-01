@@ -1,5 +1,7 @@
 server = function(input, output, session) {
-  #Refreshing data every week (milliseconds * seconds * minutes * hours * days to form a week)
+  
+  # Refreshing data every week (milliseconds * seconds * minutes * hours * days to form a week).
+  # Only needed if the app stays alive beyond Shinyapps' timeout limit.
   observe({
     invalidateLater(1000 * 60 * 60 * 24 * 7, session)
     
@@ -8,7 +10,7 @@ server = function(input, output, session) {
   })
   
   
-  #Observer that updates available provinces based on selected region
+  # Observer that updates available provinces based on selected region.
   observeEvent(input$reg,
                {
                  updateSelectInput(
@@ -31,18 +33,19 @@ server = function(input, output, session) {
                  
                })
   
-  #Reactive functions from inputs
-  #Date range selection
+  # Reactive functions from inputs.
+  
+  # Date range selection.
   d = reactive({
     input$dateRange
   })
   
-  #Variable selection from the variable relational database
+  # Variable selection from the variable relational database.
   v = reactive({
     nam %>% filter(namlab == input$vis) %>% select(var) %>% as.character()
   })
   
-  #Region selection from the region-province relational database
+  # Region selection from the region-province relational database.
   r = reactive({
     regpro %>%
       filter(reglab == input$reg) %>%
@@ -51,7 +54,7 @@ server = function(input, output, session) {
       as.character()
   })
   
-  #Province selection from the region-province relational database
+  # Province selection from the region-province relational database.
   p = reactive({
     regpro %>%
       filter(prolab == input$pro) %>%
@@ -60,7 +63,7 @@ server = function(input, output, session) {
       as.character()
   })
   
-  #Creates a temporary database from selected inputs
+  # Creates a temporary database from selected inputs.
   df1 = reactive({
     dfr %>%
       select(province, date, v()) %>%
@@ -69,11 +72,11 @@ server = function(input, output, session) {
       pivot_wider(names_from = province, values_from = v())
   })
   
-  #Plot output
+  # Plot output.
   output$plot = renderPlot({
     ggplot(df1(), aes_string(x = "date")) +
       
-      # Regional rolling 7 days mean, only if selected
+      # Regional rolling 7 days mean, only if selected.
       {
         if (input$chk == T)
           geom_line(
@@ -86,7 +89,7 @@ server = function(input, output, session) {
           )
       } +
       
-      #National rolling 7 days mean, only if selected
+      # National rolling 7 days mean, only if selected.
       {
         if (input$ita == T)
           geom_line(
@@ -99,11 +102,11 @@ server = function(input, output, session) {
           )
       } +
       
-      #Province, daily change from baseline
+      # Province, daily change from baseline.
       geom_line(aes_string(y = p()), alpha = 0.2, colour = "#899DA4") +
       
       
-      #Province, rolling mean 7 days
+      # Province, rolling mean 7 days.
       geom_line(
         aes(y = zoo::rollmean(
           get(p()), 7, na.pad = TRUE, align = "right"
@@ -118,7 +121,7 @@ server = function(input, output, session) {
       fill = "#F21A00",
       alpha = 0.1) +
       
-      #Plot labels
+      # Plot labels.
       labs(
         title = "Italian mobility changes",
         subtitle = paste0(
@@ -130,7 +133,7 @@ server = function(input, output, session) {
         caption = "Source: egiovannini.shinyapps.io/ItalianMobility/"
       ) +
       
-      #Y axis labels
+      # Y axis labels.
       scale_y_continuous(labels = scales::percent_format(accuracy = 1, scale = 100)) +
       scale_x_date(
         date_breaks = "1 month",
@@ -138,13 +141,15 @@ server = function(input, output, session) {
         labels = date_format("%b %y")
       ) +
       
-      #General theme
+      # General theme.
       cowplot::theme_minimal_grid(font_size = 18) +
       
-      #Angle on x axis
+      # Angle on x axis.
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  }, height = 600)
+  },
+  height = 600)
   
+  # Variable description, reactive on variable choice.
   output$summ1 = renderText({
     HTML(paste0("<code>",
                 nam %>% filter(var == v()) %>% select(namlab) %>% as.character(),
