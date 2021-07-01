@@ -94,7 +94,7 @@ read_google <- function(x, y) {
 # Reading data from Google Mobility Reports by geographical area.
 path <- "https://www.gstatic.com/covid19/mobility/Region_Mobility_Report_CSVs.zip"
 # Only for local testing:
-# path <- "file://new file.zip" 
+# path <- "file://data/ file.zip" 
 
 # Vector of pertinent csv files.
 files <- c("2020_IT_Region_Mobility_Report.csv",
@@ -103,8 +103,6 @@ files <- c("2020_IT_Region_Mobility_Report.csv",
 # Reading and manipulating Google Mobility Data in one large dataframe according
 # on 2 inputs (url and vector of csv files).
 read_google(path, files)
-
-colz <- colnames(dfr) %>% tibble()
 
 # Creating a db to link plot variables, displayed names and text to 
 # explain mobility variables to be shown in the summary.
