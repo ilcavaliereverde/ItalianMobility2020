@@ -1,15 +1,5 @@
 server = function(input, output, session) {
   
-  # Refreshing data every week (milliseconds * seconds * minutes * hours * days to form a week).
-  # Only needed if the app stays alive beyond Shinyapps' timeout limit.
-  observe({
-    invalidateLater(1000 * 60 * 60 * 24 * 7, session)
-    
-    read_google(path, files)
-    
-  })
-  
-  
   # Observer that updates available provinces based on selected region.
   observeEvent(input$reg,
                {
