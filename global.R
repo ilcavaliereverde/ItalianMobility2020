@@ -1,39 +1,70 @@
 # Packages to be loaded.
 library(tidyverse)
-library(magrittr)
 library(shiny)
-library(stringr)
 library(scales)
 library(shinythemes)
 library(shinyWidgets)
 library(cowplot)
 library(data.table)
 
+# ============================================================================
+# CONSTANTS
+# ============================================================================
+
+# Plot colors
+COLOR_REGIONAL <- "#3B9AB2"
+COLOR_NATIONAL <- "#02401B"
+COLOR_PROVINCE_DAILY <- "#899DA4"
+COLOR_PROVINCE_AVG <- "#F21A00"
+
+# Visual parameters
+PLOT_ALPHA <- 0.9
+PLOT_ALPHA_DAILY <- 0.2
+PLOT_ALPHA_AREA <- 0.1
+PLOT_LINE_SIZE <- 0.75
+PLOT_FONT_SIZE <- 18
+
+# Rolling average window
+ROLLING_WINDOW <- 7
+
+# Geographic constants
+ISO_CODE_MAPPING <- list("IT-SD" = "IT-SU")
+NATIONAL_LABEL <- "Italy"
+
 # Function to read and assemble Google Mobility Report data by selected country.
 # This function will be used to update Google data weekly.
-# x = zip to be downloaded;
-# y = file to be read within the zip file.
-read_google <- function(x, y) {
-  
-  # Assigning path class to x.
-  x <- file.path(x)
-  
-  # Count how many files are in the y vector.
-  length(y)
-  
-  # Creating a temporary file for every.
+# url = zip URL to be downloaded
+# files_to_read = vector of CSV filenames to extract from the zip
+read_google <- function(url, files_to_read) {
+
+  # Assigning path class to url.
+  url <- file.path(url)
+
+  # Creating a temporary file.
   temp <- tempfile()
+
+  # Download zip with error handling.
+  tryCatch({
+    download.file(url, temp)
+  }, error = function(e) {
+    stop(paste("Failed to download file from URL:", url, "\nError:", e$message))
+  })
+
+  # Unzip files with error handling.
+  fls <- tryCatch({
+    unzip(temp, files_to_read)
+  }, error = function(e) {
+    unlink(temp)
+    stop(paste("Failed to unzip file. The archive may be corrupted.\nError:", e$message))
+  })
   
-  # Downloading zip from the link.
-  download.file(x, temp)
-  
-  # Unzipping files.
-  fls <- unzip(temp, y)
-  
-  # Assigning dataframe.
-  dfr <<- rbindlist(lapply(fls,
-                           fread,
-                           encoding = "UTF-8")) %>%
+  # Read CSV files with error handling.
+  dfr <<- tryCatch({
+    rbindlist(lapply(fls, fread, encoding = "UTF-8"))
+  }, error = function(e) {
+    unlink(c(temp, fls))
+    stop(paste("Failed to read CSV files. Data may be malformed.\nError:", e$message))
+  }) %>%
     
     # Deleting useless columns.
     select(-c("country_region_code", "country_region", "metro_area", "census_fips_code")) %>%
@@ -68,15 +99,15 @@ read_google <- function(x, y) {
       iso31662 = stringr::str_trim(iso31662),
       # Fixing empty cells (Italy and regions are missing).
       province = ifelse(province == "", region, province),
-      iso31662 = ifelse(iso31662 == "IT-SD", "IT-SU", iso31662),
-      province = ifelse(province == "", "Italy", province)
+      iso31662 = ifelse(iso31662 == "IT-SD", ISO_CODE_MAPPING[["IT-SD"]], iso31662),
+      province = ifelse(province == "", NATIONAL_LABEL, province)
     )
   
   # Subsetting alphabetically-ordered region and province labels. 
   # Relational DB that connects labels with province and region names. 
   regpro <<- dfr %>%
     distinct(region, province) %>%
-    distinct(province, .keep_all = T) %>%
+    distinct(province, .keep_all = TRUE) %>%
     mutate(prolab = ifelse(province != region | region == "Aosta", province, NA),
            reglab = ifelse(is.na(prolab), region, NA))
   
@@ -90,8 +121,8 @@ read_google <- function(x, y) {
     mutate(region = str_replace_all(region, c(" " = "" , "'" = "",  "-" = "")),
                          province = str_replace_all(province, c(" " = "" , "'" = "",  "-" = "")))
   # Removing temporary items.
-  unlink(c(temp, files))
-  rm(temp)
+  unlink(c(temp, fls))
+  rm(temp, fls)
 }
 
 # Reading data from Google Mobility Reports by geographical area.
@@ -107,35 +138,29 @@ files <- c("2020_IT_Region_Mobility_Report.csv",
 # on 2 inputs (url and vector of csv files).
 read_google(path, files)
 
-# Creating a db to link plot variables, displayed names and text to 
+# Creating a db to link plot variables, displayed names and text to
 # explain mobility variables to be shown in the summary.
-
-# Plot variables
-nam = colnames(dfr[, 6:11]) %>%
-  sort() %>%
-  tibble() 
-
-# Labels to be displayed in UI
-nam[1, 2] = "Groceries and pharmacies"
-nam[2, 2] = "Parks"
-nam[3, 2] = "Residences"
-nam[4, 2] = "Retail and recreation"
-nam[5, 2] = "Transit stations"
-nam[6, 2] = "Workplaces"
-
-# Summaries for UI
-nam[1, 3] = " shows mobility trends for places like grocery markets, food warehouses, farmers markets, specialty food shops, drug stores, and pharmacies."
-nam[2, 3] = " shows mobility trends for places like national parks, public beaches, marinas, dog parks, plazas, and public gardens."
-nam[3, 3] = " shows mobility trends for places of residence."
-nam[4, 3] = " shows mobility trends for places like restaurants, cafes, shopping centers, theme parks, museums, libraries, and movie theaters."
-nam[5, 3] = " shows mobility trends for places like public transport hubs such as subway, bus, and train stations."
-nam[6, 3] = " shows mobility trends for places of work."
-
-# Colnames to call in app
-colnames(nam) = c("var",
-                  "namlab",
-                  "text")
+# Using tibble constructor for cleaner, more maintainable code.
+nam <- tibble(
+  var = colnames(dfr[, 6:11]) %>% sort(),
+  namlab = c(
+    "Groceries and pharmacies",
+    "Parks",
+    "Residences",
+    "Retail and recreation",
+    "Transit stations",
+    "Workplaces"
+  ),
+  text = c(
+    " shows mobility trends for places like grocery markets, food warehouses, farmers markets, specialty food shops, drug stores, and pharmacies.",
+    " shows mobility trends for places like national parks, public beaches, marinas, dog parks, plazas, and public gardens.",
+    " shows mobility trends for places of residence.",
+    " shows mobility trends for places like restaurants, cafes, shopping centers, theme parks, museums, libraries, and movie theaters.",
+    " shows mobility trends for places like public transport hubs such as subway, bus, and train stations.",
+    " shows mobility trends for places of work."
+  )
+)
 
 # Plot description text that will be concatenated to text summaries above
-plotdescr = "This plot displays daily variations from baseline in grey and a 7-day rolling average in red. Dots on the left add 7 day regional or national rolling averages. Data is updated to the latest available week."
+plotdescr <- "This plot displays daily variations from baseline in grey and a 7-day rolling average in red. Dots on the left add 7 day regional or national rolling averages. Data is updated to the latest available week."
 
